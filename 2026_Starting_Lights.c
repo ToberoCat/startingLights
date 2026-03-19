@@ -3,15 +3,16 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <signal.h>
 
 const int RUN_TIME = 120;
 const int SERVO_A_PORT = 0;
 const int SERVO_B_PORT = 3;
-const int DROP = 1850;
+const int DROP = 1870;
 const int CATCH = 1150;
-const int GAP = 250;
+const int GAP = 1000;
 
-void set_all_servos();
+void set_all_servos(int pos);
 void motors_on();
 void flash(int number);
 void rand_color();
@@ -31,10 +32,12 @@ int main()
 }
 
 // Sets any plugged in servos
-void set_all_servos()
+void set_all_servos(int pos)
 {
-	set_servo_position(SERVO_A_PORT, CATCH);
-	set_servo_position(SERVO_B_PORT, CATCH);
+	set_servo_position(0, pos);
+	set_servo_position(1, pos);
+	set_servo_position(2, pos);
+	set_servo_position(3, pos);
 }
 
 // Turns on any plugged in lights
@@ -62,7 +65,7 @@ void rand_color()
 {
 	srand(seconds());
 
-	printf("Upper large create: ");
+	printf("Upper large crate: ");
 	if (rand() % 2) printf("RED\n");
 	else printf("GREEN\n");
 
@@ -154,11 +157,9 @@ void *dropper() {
 
 void drop()
 {
-	set_servo_position(SERVO_A_PORT, DROP);
-	set_servo_position(SERVO_B_PORT, DROP);
+	set_all_servos(DROP);
 	msleep(GAP);
-	set_servo_position(SERVO_A_PORT, CATCH);
-	set_servo_position(SERVO_B_PORT, CATCH);
+	set_all_servos(CATCH);
 	msleep(GAP);
 }
 
@@ -198,7 +199,7 @@ void checklist()
 {
 	printf("Checklist for starting lights:\n");
 	printf("- Lights plugged into any motor port.\n");
-	printf("- Dropper servos plugged into servo port %d and %d.\n", SERVO_A_PORT, SERVO_B_PORT);
+	printf("- Dropper servos plugged any servo ports.\n");
 }
 
 // Run program on loop
@@ -215,7 +216,7 @@ void run()
 	{
 		printf("Press B button to set servos\n");
 		wait_b();
-		set_all_servos();
+		set_all_servos(CATCH);
 		printf("Servos set . . .\n");
 		printf("Press B button to proceed\n");
 		wait_b();
@@ -299,4 +300,3 @@ void run()
 		console_clear();
 	}
 }
-
